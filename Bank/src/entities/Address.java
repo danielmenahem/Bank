@@ -4,13 +4,13 @@ public class Address {
 	
 	private String city;
 	private String street;
-	private int apartmentNumber;
+	private int houseNumber;
 	private int addressID;
 	
-	public Address(String city, String street, int apartmentNumber) {
+	public Address(String city, String street, int houseNumber) {
 		this.city = city;
 		this.street = street;
-		this.apartmentNumber = apartmentNumber;
+		this.houseNumber = apartmentNumber;
 		
 		/* Address ID set after creation according to DB */
 	}
@@ -32,11 +32,11 @@ public class Address {
 	}
 
 	public int getApartmentNumber() {
-		return apartmentNumber;
+		return houseNumber;
 	}
 
 	public void setApartmentNumber(int apartmentNumber) {
-		this.apartmentNumber = apartmentNumber;
+		this.houseNumber = apartmentNumber;
 	}
 
 
@@ -50,7 +50,7 @@ public class Address {
 
 	@Override
 	public String toString() {
-		return "Address [city=" + city + ", street=" + street + ", apartmentNumber=" + apartmentNumber + ", addressID="
+		return "Address [city=" + city + ", street=" + street + ", houseNumber=" + houseNumber + ", addressID="
 				+ addressID + "]";
 	}
 	

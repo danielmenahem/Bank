@@ -13,6 +13,15 @@ public class CustomerController implements CustomerControllerInterface{
 		// TODO create connection
 		return null;
 	}
+	
+	/*
+	 * send Mor the accounts of a customer
+	 * no handling of connection
+	 * new customerConnection that mor does
+	 * running method from the object
+	 * account - only one
+	 * empty constructor
+	 */
 
 	@Override
 	public void transactionOut(int sourceAccountNumber, int targetAccountNumber, int amount) throws Exception {

@@ -1,7 +1,6 @@
 package entities;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 public class Account {
 
@@ -11,11 +10,10 @@ public class Account {
 
 	private CustomerDetails customer;
 	private int balance;
-	private ArrayList<Loan> loans;
-	private int numberOfActiveLoans;
+	private Loan loan;
 	private boolean isRestricted;
 	private Restriction restriction;
-	private ArrayList<Deposit> deposits;
+	private Deposit deposit;
 	private LocalDateTime timeOfOpening;
 	private LocalDateTime timeOfClosing;
 	private AccountStatus status;
@@ -25,101 +23,57 @@ public class Account {
 	public Account(CustomerDetails customer){
 		this.customer = customer;
 		this.balance = 0;
-		this.numberOfActiveLoans = 0;
 		this.timeOfOpening = LocalDateTime.now();
 		this.status = AccountStatus.Open;
-		
-		
-
-		this.loans = new ArrayList<Loan>();
-		this.deposits = new ArrayList<Deposit>();
 
 		/* Account ID set after creation according to DB */
 	}
 
 	public void addLoan(Loan loan) throws Exception {
-		synchronized (this) {
-			loans.add(loan);
-			numberOfActiveLoans++;
-			withdrawOrDeposit(loan.getInitialAmount());
-		}
+			this.loan = loan;
+			withdrawOrDeposit(loan.getInitialAmount());//if loan is added, the amount of is ADDED to balance
 	}
 
 	public void returnLoan() throws Exception {
-		synchronized (this) {
-			if (numberOfActiveLoans == 0) 
+			if (loan == null) 
 				throw new Exception("No loans to return!");
 
-			Loan loanToReturn = null;
-
-			for (int i = 0; i < loans.size(); i++) { //We want to return the oldest loan possible
-				Loan currentLoan = loans.get(i);
-				if (currentLoan.isActive() && currentLoan.getLoanBalance() <= getAccountBalance()) {
-					loanToReturn = currentLoan;
-					break;
-				}
-			}
-
-			if (loanToReturn == null) 
-				throw new Exception("Insufficient funds to return a loan!");
-
-			withdrawOrDeposit(loanToReturn.getLoanBalance()*-1);
-			loanToReturn.setLoanBalance(0);
-			loanToReturn.closeLoan();
-			numberOfActiveLoans--;
-		}
+			withdrawOrDeposit(loan.getLoanBalance()*-1);
+			loan.setLoanBalance(0);
+			loan.closeLoan();
+			loan = null;
 	}
 
-	public void withdrawFromDeposit(int amountToWithdraw) throws Exception {
-		synchronized (this) {
-			int totalDepositedAmount = 0;
-			int numberOfDesposits = deposits.size();
-			for (int i = 0; i < numberOfDesposits; i++)
-				totalDepositedAmount += deposits.get(i).getDepositBalance();
+	public void withdrawFromDeposit(int amountToWithdraw) throws Exception {	
+		if (deposit == null || deposit.getDepositBalance() < amountToWithdraw)
+			throw new Exception("Insufficient funds in deposits to withdraw this amount!");
 
-			if (totalDepositedAmount < amountToWithdraw) 
-				throw new Exception("Insufficient funds in deposits to withdraw this amount!");
-
-			int amountLeftToWithdraw = amountToWithdraw;
-
-			while (amountLeftToWithdraw > 0) { 
-				Deposit currentDeposit = deposits.get(numberOfDesposits-1); //We want to withdraw from newest deposit first
-				if (amountLeftToWithdraw >= currentDeposit.getDepositBalance()) {
-					amountLeftToWithdraw -= currentDeposit.getDepositBalance();
-					currentDeposit.setDepositBalance(0);
-					deposits.remove(--numberOfDesposits);
-				} else {
-					currentDeposit.setDepositBalance(currentDeposit.getDepositBalance() - amountLeftToWithdraw);
-					amountLeftToWithdraw = 0;
-				}
-			}
-
-			withdrawOrDeposit(amountToWithdraw);
-		}
+		withdrawOrDeposit(amountToWithdraw);
+		deposit.setDepositBalance(deposit.getDepositBalance() - amountToWithdraw);
+		
+		if (deposit.getDepositBalance() == 0)
+			deposit = null;
 	}
 
 	public void closeAccount() throws Exception {
-		synchronized (this) {
 			if (getAccountBalance() != 0) 
 				throw new Exception("Balance is different from 0!");
 
-			if (getNumberOfActiveLoans() > 0)
-				throw new Exception("There are active loans in this account!");
+			if (loan != null)
+				throw new Exception("There is a loans in this account!");
 
-			if (deposits.size() > 0)
-				throw new Exception("There are deposits in this account!");
+			if (deposit != null)
+				throw new Exception("There is a deposit in this account!");
 
 			if (isRestricted)
 				throw new Exception("Account is restricted!");
 
 			setTimeOfClosing(LocalDateTime.now());
 			setStatus(AccountStatus.Closed);
-		}
 
 	}
 
 	public void addRestriction(Restriction restriction) throws Exception {
-		synchronized (this) {
 			if (isRestricted && (restriction.getAmount() < getRestriction().getAmount())) //only one restriction, the highest possible
 				return;
 
@@ -129,38 +83,35 @@ public class Account {
 			setRestriction(restriction);
 			withdrawOrDeposit(restriction.getAmount()*-1);
 			setIsRestricted(true);
-		}
+		
 	}
 
 	public void cancelRestriction() throws Exception {
-		synchronized (this) {
 			if (!isRestricted)
 				throw new Exception("Account isn't restricted!");
 
 			withdrawOrDeposit(getRestriction().getAmount());
 			setRestriction(null);
 			setIsRestricted(false);
-		}
+		
 	}
 
 	public void withdrawOrDeposit(int amount) throws Exception {
-		synchronized (this) {
 			if ((amount < 0) && amount*-1 > getAccountBalance())
 				throw new Exception("Insufficient funds!");
 
 			this.balance += amount;
-		}
+		
 	}
 
 
 	public void addDeposit(Deposit deposit) throws Exception {
-		synchronized (this) {
 			if (deposit.getDepositBalance() > getAccountBalance())
 				throw new Exception("Insufficient funds to deposit this amount!");
 
 			withdrawOrDeposit(deposit.getDepositBalance()*-1);
-			deposits.add(deposit);
-		}
+			this.deposit = deposit;
+	
 	}
 
 	public CustomerDetails getCustomer() {
@@ -175,12 +126,12 @@ public class Account {
 		return balance;
 	}
 
-	public ArrayList<Loan> getLoans() {
-		return loans;
+	public Loan getLoan() {
+		return loan;
 	}
 
-	public void setLoans(ArrayList<Loan> loans) {
-		this.loans = loans;
+	public void setLoans(Loan loan) {
+		this.loan = loan;
 	}
 
 	public boolean isRestricted() {
@@ -205,12 +156,12 @@ public class Account {
 
 
 
-	public ArrayList<Deposit> getDeposits() {
-		return deposits;
+	public Deposit getDeposit() {
+		return deposit;
 	}
 
-	public void setDeposits(ArrayList<Deposit> deposits) {
-		this.deposits = deposits;
+	public void setDeposits(Deposit deposit) {
+		this.deposit = deposit;
 	}
 
 	public LocalDateTime getTimeOfOpening() {
@@ -245,24 +196,14 @@ public class Account {
 		this.accountID = accountID;
 	}
 
-	public int getNumberOfActiveLoans() {
-		return numberOfActiveLoans;
-	}
-
-	public void setNumberOfActiveLoans(int numberOfActiveLoans) {
-		this.numberOfActiveLoans = numberOfActiveLoans;
-	}
-
-	public int getNumberOfActiveDeposits() {
-		return deposits.size();
-	}
-
 	@Override
 	public String toString() {
-		return "Account [customer=" + customer + ", balance=" + balance + ", numberOfActiveLoans="
-				+ numberOfActiveLoans + ", isRestricted=" + isRestricted
-				+ ", timeOfOpening=" + timeOfOpening + ", timeOfClosing=" + timeOfClosing
-				+ ", status=" + status + ", accountID=" + accountID + "]";
+		return "Account [customer=" + customer + ", balance=" + balance + ", loan=" + loan + ", isRestricted="
+				+ isRestricted + ", restriction=" + restriction + ", deposit=" + deposit + ", timeOfOpening="
+				+ timeOfOpening + ", timeOfClosing=" + timeOfClosing + ", status=" + status + ", accountID=" + accountID
+				+ "]";
 	}
+
+
 
 }
