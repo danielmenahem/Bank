@@ -4,25 +4,20 @@ import java.util.ArrayList;
 
 public class CustomerDetails {
 	private String customerName;
-	private ArrayList<Account> accounts;
-	private Address address;
+	private Account account;
+	private String address;
 	private long phoneNumber;
 	
 	private int customerID;
 	
-	public CustomerDetails(String customerName, Address address, long phoneNumber) {
+	public CustomerDetails(String customerName, String address, long phoneNumber) {
 		this.customerName = customerName;
 		this.address = address;
 		this.phoneNumber = phoneNumber;
-		
-		this.accounts = new ArrayList<Account>();
-		
+				
 		/* customer ID set after creation according to DB */
 	}
 	
-	public void addAccountToCustomer(Account account) {
-		accounts.add(account);
-	}
 
 	public String getCustomerName() {
 		return customerName;
@@ -32,19 +27,19 @@ public class CustomerDetails {
 		this.customerName = customerName;
 	}
 
-	public ArrayList<Account> getAccounts() {
-		return accounts;
+	public Account getAccounts() {
+		return account;
 	}
 
-	public void setAccounts(ArrayList<Account> accounts) {
-		this.accounts = accounts;
+	public void setAccounts(Account account) {
+		this.account = account;
 	}
 
-	public Address getAddress() {
+	public String getAddress() {
 		return address;
 	}
 
-	public void setAddress(Address address) {
+	public void setAddress(String address) {
 		this.address = address;
 	}
 

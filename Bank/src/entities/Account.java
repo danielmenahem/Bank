@@ -11,8 +11,7 @@ public class Account {
 	private CustomerDetails customer;
 	private int balance;
 	private Loan loan;
-	private boolean isRestricted;
-	private Restriction restriction;
+	private int restriction;
 	private Deposit deposit;
 	private LocalDateTime timeOfOpening;
 	private LocalDateTime timeOfClosing;
@@ -65,7 +64,7 @@ public class Account {
 			if (deposit != null)
 				throw new Exception("There is a deposit in this account!");
 
-			if (isRestricted)
+			if (restriction != 0)
 				throw new Exception("Account is restricted!");
 
 			setTimeOfClosing(LocalDateTime.now());
@@ -73,28 +72,7 @@ public class Account {
 
 	}
 
-	public void addRestriction(Restriction restriction) throws Exception {
-			if (isRestricted && (restriction.getAmount() < getRestriction().getAmount())) //only one restriction, the highest possible
-				return;
 
-			if (restriction.getAmount() > getAccountBalance())
-				throw new Exception("Amount to restrict greater than balance!");
-
-			setRestriction(restriction);
-			withdrawOrDeposit(restriction.getAmount()*-1);
-			setIsRestricted(true);
-		
-	}
-
-	public void cancelRestriction() throws Exception {
-			if (!isRestricted)
-				throw new Exception("Account isn't restricted!");
-
-			withdrawOrDeposit(getRestriction().getAmount());
-			setRestriction(null);
-			setIsRestricted(false);
-		
-	}
 
 	public void withdrawOrDeposit(int amount) throws Exception {
 			if ((amount < 0) && amount*-1 > getAccountBalance())
@@ -135,25 +113,21 @@ public class Account {
 	}
 
 	public boolean isRestricted() {
-		return isRestricted;
+		return restriction > 0;
 	}
 
-	public void setIsRestricted(boolean isRestricted) {
-		this.isRestricted = isRestricted;
-		if (isRestricted)
-			this.status = AccountStatus.Restricted; 
-		else
-			this.status = AccountStatus.Open;
-	}
 
-	public Restriction getRestriction() {
+	public int getRestriction() {
 		return restriction;
 	}
 
-	public void setRestriction(Restriction restriction) {
+	public void setRestriction(int restriction) {
 		this.restriction = restriction;
+		if (restriction > 0)
+			this.status = AccountStatus.Restricted;
+		else
+			this.status = AccountStatus.Open;
 	}
-
 
 
 	public Deposit getDeposit() {
@@ -198,8 +172,8 @@ public class Account {
 
 	@Override
 	public String toString() {
-		return "Account [customer=" + customer + ", balance=" + balance + ", loan=" + loan + ", isRestricted="
-				+ isRestricted + ", restriction=" + restriction + ", deposit=" + deposit + ", timeOfOpening="
+		return "Account [customer=" + customer + ", balance=" + balance + ", loan=" + loan 
+				+ ", restriction=" + restriction + ", deposit=" + deposit + ", timeOfOpening="
 				+ timeOfOpening + ", timeOfClosing=" + timeOfClosing + ", status=" + status + ", accountID=" + accountID
 				+ "]";
 	}
