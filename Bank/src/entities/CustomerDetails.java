@@ -1,38 +1,50 @@
 package entities;
 
-import java.util.ArrayList;
-
 public class CustomerDetails {
-	private String customerName;
-	private Account account;
+	private long customerID; // He's real id number - not db id
+	private String name;
+	private String phoneNumber;
 	private String address;
-	private long phoneNumber;
 	
-	private int customerID;
-	
-	public CustomerDetails(String customerName, String address, long phoneNumber) {
-		this.customerName = customerName;
-		this.address = address;
+	private Account account;
+
+	public CustomerDetails(long customerID, String customerName, String phoneNumber, String address){
+		this.customerID = customerID;
+		this.name = customerName;
 		this.phoneNumber = phoneNumber;
-				
-		/* customer ID set after creation according to DB */
+		this.address = address;
 	}
 	
+	public void setCustomerID(long customerID) {
+		this.customerID = customerID;
+	}
+	
+	public long getCustomerID() {
+		return customerID;
+	}
 
 	public String getCustomerName() {
-		return customerName;
+		return name;
 	}
 
 	public void setCustomerName(String customerName) {
-		this.customerName = customerName;
+		this.name = customerName;
 	}
 
-	public Account getAccounts() {
-		return account;
+	public String getPhoneNumber() {
+		return phoneNumber;
 	}
 
-	public void setAccounts(Account account) {
-		this.account = account;
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getAddress() {
@@ -43,27 +55,21 @@ public class CustomerDetails {
 		this.address = address;
 	}
 
-	public Long getPhoneNumber() {
-		return phoneNumber;
+	public Account getAccount() {
+		return account;
 	}
 
-	public void setPhoneNumber(Long phoneNumber) {
-		this.phoneNumber = phoneNumber;
+	public void setAccount(Account account) {
+		this.account = account;
 	}
 
-	public int getCustomerID() {
-		return customerID;
-	}
-
-	public void setCustomerID(int customerID) {
-		this.customerID = customerID;
-	}
-
+	
 	@Override
 	public String toString() {
-		return "CustomerDetails [customerName=" + customerName + ", address=" + address
-				+ ", phoneNumber=" + phoneNumber + ", customerID=" + customerID + "]";
+		return "CustomerDetails [customerID=" + customerID + ", name=" + name + ", phoneNumber=" + phoneNumber
+				+ ", address=" + address + ", account=" + account + "]";
 	}
 
-
+	
+	
 }
