@@ -87,24 +87,24 @@ public class BankDAL implements BankDALInterface  {
 		// TODO complete
 
 		String tableName = dbTableNameForClass(object.getClass());
-		
+
 		if (tableName == null) {
 			throw new UnsupportedClassException("Invalid object. No such DB table.");
 		}
-		
 
-    	String statement = "INSERT INTO " + 
-    				tableName + 
-    				" VALUES (NULL, ?, ?, ?)";
-    	
-//    	 String sql = "INSERT INTO Registration " +
-//                 "VALUES (100, 'Zara', 'Ali', 18)";
-    	     	 
+    	String statement = "INSERT INTO " + tableName + " ";
+
+    	if (object instanceof CustomerDetails) {
+    		statement = statement + "(name) VALUES (?)";
+		}
+
     	PreparedStatement ps = connection.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
-    	ps.setString(1, "name");
-    	ps.setString(2, "pass");
-    	ps.setInt(3, 3);
-    	
+
+    	if (object instanceof CustomerDetails) {
+    		CustomerDetails c = (CustomerDetails)object;
+        	ps.setString(1, c.getCustomerName());
+		}
+
     	return ps;
 	}
 }
