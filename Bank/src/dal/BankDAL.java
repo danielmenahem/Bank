@@ -72,14 +72,7 @@ public class BankDAL implements BankDALInterface  {
 	}
 	
 	private static String dbTableNameForClass(Class<?> c) {
-		// TODO complete
-
-		return "";
-//		if (c.equals(Account.class)) {
-//			return "account";
-//		}
-//		
-//		c.equals(BankDAL.class);
+		return c.getSimpleName();
 	}
 	
 	private static PreparedStatement insertStatement(Connection connection, Object object) 
